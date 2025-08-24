@@ -13,3 +13,6 @@ yarn-error.log
 /.idea
 /.vscode
 /tmp/*
+/vendor1/*
+/vendor/*
+/vendor2/*

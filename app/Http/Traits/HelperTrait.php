@@ -152,7 +152,7 @@ trait HelperTrait
 	public function getInstituteProfile()
     {
     	$foundation = Institute::whereHas('getDepartment', function($qry) {
-                            $qry->where('is_all',1);    
+                            $qry->where('is_all',0);    
                         })->first();
         if (Storage::disk('local')->exists('/public/uploads/'.$foundation->logo) && $foundation->logo <> null)
         {
@@ -161,7 +161,7 @@ trait HelperTrait
             $logo = asset('img/logo-yayasan.png');
         }
         $profiles = array(
-            'name' => Str::title($foundation->name),
+            'name' => "PPPA DAARUL QUR'AN",
             'logo' => $logo,
             'address' => $foundation->address,
             'phone' => $foundation->phone,
