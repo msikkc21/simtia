@@ -218,7 +218,7 @@ return [
     |
     */
 
-    'wkthmltopdf' => env('WKHTML_PATH', 'wkthmltopdf'),
+    'wkthmltopdf' => PHP_OS === 'WINNT' ? env('WKHTML_PATH', 'C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe') : env('WKHTML_PATH', 'wkhtmltopdf'),
 
     /*
     |--------------------------------------------------------------------------
@@ -229,6 +229,6 @@ return [
     |
     */
 
-    'updater_path' => base_path().'/tmp',
+    'updater_path' => base_path() . '/tmp',
     'updater_url' => 'http://repository.simtia.org',
 ];

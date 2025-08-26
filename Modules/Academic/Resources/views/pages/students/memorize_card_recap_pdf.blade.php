@@ -5,9 +5,11 @@
             ? str_replace(url(''), base_path() . '/public', $profile['logo'])
             : str_replace(url('') . '/storage', base_path() . '/storage/app/public/', $profile['logo']);
 @endphp
+<!DOCTYPE html>
 <html>
 
 <head>
+    <meta charset="utf-8">
     <title>{{ config('app.name') . ' ' . strtoupper(Session::get('institute')) }} - KARTU SETORAN HAFALAN SANTRI</title>
     <link href="file:///{{ public_path('css/print-minimal.css') }}" rel="stylesheet" />
 </head>
@@ -64,7 +66,7 @@
                         <td style="width:3%;">Bulan</td>
                         <td style="width: 1%;text-align:center;">:</td>
                         <td style="width:30%;">
-                            {{ $helpers->formatDate($helpers->formatDate($requests->memorize_date, 'sys'), 'dateday') }}
+                            {{ $helpers->formatDate($requests->memorize_date, 'dateday') }}
                         </td>
                     </tr>
                     <tr>
@@ -117,6 +119,7 @@
                 </tbody>
             </table>
         </div>
+    </div>
 </body>
 
 </html>

@@ -4,6 +4,20 @@
     $GridHeight = $InnerHeight - 301 . 'px';
     $SubGridHeight = $InnerHeight - 352 . 'px';
 @endphp
+<style>
+    /* CSS untuk memastikan teks dalam combogrid selalu uppercase */
+    .combo-text {
+        text-transform: uppercase !important;
+    }
+
+    #class-select {
+        text-transform: uppercase !important;
+    }
+
+    .text-uppercase {
+        text-transform: uppercase !important;
+    }
+</style>
 <div class="container-fluid mt-1 mb-1">
     <div class="row">
         <div class="col-8 p-0">
@@ -14,33 +28,6 @@
                 style="width: 180px; height: 30px;" onclick="recapMonth()">
                 Cetak Rekap 1 Bulan
             </a>
-            <div id="ddprint" style="display:flex;flex-direction:column;">
-                <p>Pilih Bulan:</p>
-                <select id="month-select" class="easyui-combobox" style="width:100%">
-                    <option value="1">Januari</option>
-                    <option value="2">Februari</option>
-                    <option value="3">Maret</option>
-                    <option value="4">April</option>
-                    <option value="5">Mei</option>
-                    <option value="6">Juni</option>
-                    <option value="7">Juli</option>
-                    <option value="8">Agustus</option>
-                    <option value="9">September</option>
-                    <option value="10">Oktober</option>
-                    <option value="11">November</option>
-                    <option value="12">Desember</option>
-                </select>
-                <p>Pilih Kelas:</p>
-                <select id="class-select" class="easyui-combobox" style="width:100%">
-                    <option value="1">Kelas 1</option>
-                    <option value="2">Kelas 2</option>
-                    <option value="3">Kelas 3</option>
-                    <option value="4">Kelas 4</option>
-                    <option value="5">Kelas 5</option>
-                    <option value="6">Kelas 6</option>
-                </select>
-                <button style="margin-top: 5px;">Cetak Rekap</button>
-            </div>
             <a class="easyui-linkbutton" data-options="iconCls:'ms-Icon ms-Icon--PDF'"
                 onclick="printMemorizeCardForm('pdf')">Cetak Form Kartu Setoran</a>
         </div>
@@ -271,6 +258,9 @@
     var markMemorizeCard = document.getElementById("mark-memorize-card")
     var idMemorizeCard = document.getElementById("id-memorize-card")
     var dgMemorizeCard = $("#tb-memorize-card")
+
+    // Dialog rekap bulanan
+    var dlgRecapMonthly;
     var surahs = [
         @foreach ($surahs as $surah)
             {
@@ -298,6 +288,93 @@
         }
     }
     $(function() {
+        // Inisialisasi dialog rekap bulanan
+        $("#dlg-recap-monthly").dialog({
+            closed: true,
+            modal: true,
+            iconCls: 'ms-Icon ms-Icon--PDF',
+            buttons: '#dlg-buttons-recap',
+            onOpen: function() {
+                // Pastikan textbox combogrid memiliki styling uppercase
+                setTimeout(function() {
+                    $("#class-select").combogrid('textbox').css('text-transform',
+                        'uppercase');
+                }, 200);
+            }
+        });
+
+        // Inisialisasi combogrid kelas dengan formatter untuk nama kelas
+        $("#class-select").combogrid({
+            panelWidth: 380, // Sesuaikan dengan lebar dialog
+            idField: 'id',
+            textField: 'class',
+            url: '{{ url('academic/student/memorize-card/classes') }}',
+            method: 'get',
+            mode: 'remote',
+            fitColumns: true,
+            editable: false, // Agar nilai tidak bisa diedit manual
+            prompt: 'Pilih Kelas',
+            formatter: function(row) {
+                // Pastikan kelas selalu dalam format uppercase
+                return row.class.toUpperCase();
+            },
+            columns: [
+                [{
+                        field: 'department_id',
+                        title: 'Dept ID',
+                        hidden: true
+                    },
+                    {
+                        field: 'class',
+                        title: 'Kelas',
+                        width: 150,
+                        formatter: function(value) {
+                            // Format kelas di datagrid juga dengan huruf besar
+                            return value.toUpperCase();
+                        }
+                    },
+                    {
+                        field: 'grade',
+                        title: 'Tingkat',
+                        width: 80,
+                        align: 'center'
+                    },
+                    {
+                        field: 'school_year',
+                        title: 'Thn. Ajaran',
+                        width: 100,
+                        align: 'center'
+                    }
+                ]
+            ],
+            onLoadSuccess: function() {
+                // Pastikan uppercase untuk semua data setelah dimuat
+                $(this).combogrid('grid').datagrid('getRows').forEach(function(row) {
+                    row.class = row.class.toUpperCase();
+                });
+            },
+            onSelect: function(index, row) {
+                // Set nilai ID untuk disimpan
+                $(this).combogrid('setValue', row.id);
+
+                // Set teks yang ditampilkan dalam format UPPERCASE 
+                var displayText = row.class.toUpperCase();
+                $(this).combogrid('setText', displayText);
+
+                // Ganti nilai textbox langsung untuk memastikan format benar
+                $(this).combogrid('textbox').val(displayText);
+
+                // Tutup panel dropdown secara otomatis setelah dipilih
+                $(this).combogrid('hidePanel');
+
+                // Tambahkan class CSS untuk memastikan teks selalu uppercase
+                $(this).combogrid('textbox').css('text-transform', 'uppercase');
+            },
+            onShowPanel: function() {
+                $(this).combogrid('grid').datagrid('reload');
+            }
+        });
+
         sessionStorage.formKartu_Setoran = "init"
         dgMemorizeCard.datagrid({
             url: "{{ url('academic/student/memorize-card/data') }}",
@@ -541,15 +618,155 @@
     }
 
     function recapMonth() {
-        $('#ddprint').window('open');
+        // Reset combogrid kelas terlebih dahulu sebelum menampilkan dialog
+        // untuk memastikan tidak ada nilai lama yang tertinggal
+        $("#class-select").combogrid('clear');
+        $("#class-select").combogrid('setText', '');
+        $("#class-select").combogrid('textbox').attr('placeholder', 'Pilih Kelas');
+
+        // Buka dialog rekap bulanan
+        $('#dlg-recap-monthly').dialog('open');
+
+        // Set nilai default untuk bulan saat ini
+        var currentMonth = new Date().getMonth() + 1; // JavaScript bulan dimulai dari 0
+        $("#month-select").combobox('setValue', currentMonth);
+
+        // Tambahkan CSS untuk memastikan teks selalu uppercase
+        $("#class-select").combogrid('textbox').css('text-transform', 'uppercase');
     }
 
-    $('#ddprint').window({
-        title: 'Cetak Rekap Bulanan',
-        width: 400,
-        height: 200,
-        closed: true,
-        cache: false,
-        modal: false
+    $(function() {
+        // Tambahkan CSS untuk memastikan teks selalu uppercase pada saat halaman dimuat
+        setTimeout(function() {
+            $("#class-select").combogrid('textbox').css('text-transform', 'uppercase');
+        }, 500);
+
+        // Fungsi untuk memastikan teks selalu uppercase
+        function ensureUpperCase() {
+            var textbox = $("#class-select").combogrid('textbox');
+            var text = textbox.val();
+            if (text) {
+                textbox.val(text.toUpperCase());
+            } else if (text) {
+                textbox.val(text.toUpperCase());
+            }
+        }
+
+        // Tambahkan event handler untuk memastikan teks selalu uppercase
+        $(document).on('keyup', '.combo-text', function() {
+            $(this).val($(this).val().toUpperCase());
+        });
+
+        $('#btn-print-recap').click(function() {
+            var month = $('#month-select').combobox('getValue');
+            var classId = $('#class-select').combogrid('getValue');
+            var className = $('#class-select').combogrid('getText');
+
+            // Pastikan teks dalam format uppercase
+            ensureUpperCase();
+
+            // Validasi input
+            if (!month || !classId) {
+                $.messager.alert('Peringatan', 'Silakan pilih bulan dan kelas terlebih dahulu',
+                    'warning');
+                return;
+            }
+
+            // Pastikan nama kelas dalam format yang benar sebelum submit
+            if (!className.startsWith('KELAS ')) {
+                // Jika format tidak sesuai, koreksi formatnya
+                $('#class-select').combogrid('setText', className.toUpperCase());
+            }
+
+            // Show loading indicator
+            $("#page-memorize-card").waitMe({
+                effect: "facebook"
+            });
+
+            // Send request to server
+            $.ajax({
+                url: "{{ url('academic/student/memorize-card/rekap-bulanan/pdf') }}",
+                method: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    month: month,
+                    class: classId
+                },
+                dataType: "json",
+                success: function(response) {
+                    $("#page-memorize-card").waitMe("hide");
+                    if (response.success) {
+                        // Close dialog
+                        $('#dlg-recap-monthly').dialog('close');
+
+                        // Log debug info to console
+                        console.log("PDF Debug Info:", response.debug);
+
+                        // Open file in new tab/window (either PDF or HTML fallback)
+                        var fileUrl = "{{ url('storage/downloads') }}/" + response
+                        .filename;
+                        window.open(fileUrl, '_blank');
+
+                        // Tampilkan pesan jika menggunakan mode HTML
+                        if (response.isHtml) {
+                            $.messager.alert('Info',
+                                'Rekap ditampilkan dalam format HTML karena gagal membuat PDF',
+                                'info');
+                        }
+
+                        Toast.fire({
+                            icon: "success",
+                            title: response.message
+                        });
+                    } else {
+                        $.messager.alert('Error', response.message, 'error');
+                    }
+                },
+                error: function(xhr) {
+                    $("#page-memorize-card").waitMe("hide");
+                    failResponse(xhr);
+                }
+            });
+        });
     });
 </script>
+
+<!-- Dialog Rekap Bulanan -->
+<div id="dlg-recap-monthly" class="easyui-dialog" title="Cetak Rekap Bulanan"
+    style="width:400px;height:250px;padding:10px"
+    data-options="closed:true,modal:true,iconCls:'ms-Icon ms-Icon--PDF',buttons:'#dlg-buttons-recap'">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-12">
+                <select id="month-select" class="easyui-combobox" style="width:380px;height:22px;"
+                    data-options="label:'<b>*</b>Pilih Bulan:',labelWidth:120,labelPosition:'before',panelHeight:240">
+                    <option value="1">Januari</option>
+                    <option value="2">Februari</option>
+                    <option value="3">Maret</option>
+                    <option value="4">April</option>
+                    <option value="5">Mei</option>
+                    <option value="6">Juni</option>
+                    <option value="7">Juli</option>
+                    <option value="8">Agustus</option>
+                    <option value="9">September</option>
+                    <option value="10">Oktober</option>
+                    <option value="11">November</option>
+                    <option value="12">Desember</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12">
+                <select id="class-select" class="easyui-combogrid" style="width:380px;height:22px;"
+                    data-options="label:'<b>*</b>Pilih Kelas:',labelWidth:120,labelPosition:'before',editable:false,prompt:'Pilih Kelas'">
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="dlg-buttons-recap" style="text-align:center;padding:5px 0">
+    <a href="javascript:void(0)" id="btn-print-recap" class="easyui-linkbutton"
+        data-options="iconCls:'ms-Icon ms-Icon--PDF'" style="width:120px">Cetak</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'ms-Icon ms-Icon--Cancel'"
+        onclick="javascript:$('#dlg-recap-monthly').dialog('close')" style="width:120px">Batal</a>
+</div>
