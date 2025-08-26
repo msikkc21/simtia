@@ -42,8 +42,7 @@ class StudentMemorizeCardController extends Controller
      */
     public function index(Request $request)
     {
-        if (!$request->ajax()) 
-        {
+        if (!$request->ajax()) {
             abort(404);
         }
         $window = explode(".", $request->w);
@@ -51,9 +50,9 @@ class StudentMemorizeCardController extends Controller
         $data['InnerWidth'] = $window[1];
         $data['ViewType'] = $request->t;
         //
-        $data['surahs'] = DB::table('quran_surahs')->orderBy('id')->get()->map(function($model){
-            $model->surah = $model->id .' - '. $model->surah . ' (' . $model->total .' ayat)';
-            return $model; 
+        $data['surahs'] = DB::table('quran_surahs')->orderBy('id')->get()->map(function ($model) {
+            $model->surah = $model->id . ' - ' . $model->surah . ' (' . $model->total . ' ayat)';
+            return $model;
         });
         $data['departments'] = $this->listDepartment();
         return view('academic::pages.students.memorize_card', $data);
@@ -67,35 +66,30 @@ class StudentMemorizeCardController extends Controller
     public function store(MemorizeCardRequest $request)
     {
         $validated = $request->validated();
-        try 
-        {
+        try {
             $request->merge([
-                'memorize_date' => $this->formatDate($request->memorize_date,'sys'),
+                'memorize_date' => $this->formatDate($request->memorize_date, 'sys'),
                 'logged' => auth()->user()->email,
             ]);
 
             // validate max verse
             $students = [];
-            
-            for ($i=0; $i < count($request->students); $i++) 
-            {
+
+            for ($i = 0; $i < count($request->students); $i++) {
                 if (
                     $request->students[$i]['from_surah'] != null &&
                     $request->students[$i]['from_verse'] != null &&
                     $request->students[$i]['to_surah'] != null &&
                     $request->students[$i]['to_verse'] != null
-                )
-                {
+                ) {
                     $from_surah = $this->getSurah($request->students[$i]['from_surah']);
-                    if ($request->students[$i]['from_verse'] > $from_surah->total)
-                    {
-                        throw new Exception('Isian jumlah ayat di kolom Dari Ayat: ('.$request->students[$i]['from_verse'].') melebihi jumlah ayat di Surat ' . $from_surah->surah . ' (' . $from_surah->total . ' ayat)', 1);
+                    if ($request->students[$i]['from_verse'] > $from_surah->total) {
+                        throw new Exception('Isian jumlah ayat di kolom Dari Ayat: (' . $request->students[$i]['from_verse'] . ') melebihi jumlah ayat di Surat ' . $from_surah->surah . ' (' . $from_surah->total . ' ayat)', 1);
                     }
 
                     $to_surah = $this->getSurah($request->students[$i]['to_surah']);
-                    if ($request->students[$i]['to_verse'] > $to_surah->total)
-                    {
-                        throw new Exception('Isian jumlah ayat di kolom Sampai Ayat: ('.$request->students[$i]['to_verse'].') melebihi jumlah ayat di Surat ' . $to_surah->surah . ' (' . $to_surah->total . ' ayat)', 1);
+                    if ($request->students[$i]['to_verse'] > $to_surah->total) {
+                        throw new Exception('Isian jumlah ayat di kolom Sampai Ayat: (' . $request->students[$i]['to_verse'] . ') melebihi jumlah ayat di Surat ' . $to_surah->surah . ' (' . $to_surah->total . ' ayat)', 1);
                     }
 
                     $students[] = array(
@@ -106,12 +100,11 @@ class StudentMemorizeCardController extends Controller
                         'to_surah' => $request->students[$i]['to_surah'],
                         'to_verse' => $request->students[$i]['to_verse'],
                         'status' => $request->students[$i]['status'],
-                    );      
-                } 
+                    );
+                }
             }
 
-            for ($i=0; $i < count($students); $i++) 
-            { 
+            for ($i = 0; $i < count($students); $i++) {
                 $request->merge([
                     'id' => $students[$i]['id'],
                     'student_id' => $students[$i]['student_id'],
@@ -122,8 +115,7 @@ class StudentMemorizeCardController extends Controller
                     'status' => $students[$i]['status'],
                 ]);
 
-                if ($request->id < 1)
-                {
+                if ($request->id < 1) {
                     $this->memorizeCardEloquent->create($request, $this->subject);
                 } else {
                     $this->memorizeCardEloquent->update($request, $this->subject);
@@ -143,7 +135,7 @@ class StudentMemorizeCardController extends Controller
      */
     public function show($class_id, $date)
     {
-        return response()->json(MemorizeCard::where('class_id', $class_id)->where('memorize_date', $date)->get()->map(function($model){
+        return response()->json(MemorizeCard::where('class_id', $class_id)->where('memorize_date', $date)->get()->map(function ($model) {
             $model['student_no'] = $model->getStudent->student_no;
             $model['name'] = $model->getStudent->name;
             $model['department'] = $model->getClass->getGrade->getDepartment->name;
@@ -179,20 +171,17 @@ class StudentMemorizeCardController extends Controller
      */
     public function destroy(Request $request)
     {
-        try 
-        {
-            for ($i=0; $i < count($request->students); $i++) 
-            { 
-                if ($request->students[$i]['id'] > 0)
-                {
+        try {
+            for ($i = 0; $i < count($request->students); $i++) {
+                if ($request->students[$i]['id'] > 0) {
                     $this->memorizeCardEloquent->destroy($request->students[$i]['id'], $this->subject);
                 }
             }
-            $response = $this->getResponse('destroy','',$this->subject);
+            $response = $this->getResponse('destroy', '', $this->subject);
         } catch (\Throwable $e) {
             $response = $this->getResponse('error', $e->getMessage(), $this->subject);
         }
-        return response()->json($response);   
+        return response()->json($response);
     }
 
     /**
@@ -201,15 +190,15 @@ class StudentMemorizeCardController extends Controller
      */
     public function print(Request $request)
     {
-        $data['requests'] = json_decode($request->data);            
+        $data['requests'] = json_decode($request->data);
         $data['profile'] = $this->getInstituteProfile();
         //
         $view = View::make('academic::pages.students.memorize_card_pdf', $data);
-        $name = Str::lower(config('app.name')) .'_'. Str::of($this->subject)->snake();
+        $name = Str::lower(config('app.name')) . '_' . Str::of($this->subject)->snake();
         $hashfile = md5(date('Ymdhis') . '_' . $name);
         $filename = date('Ymdhis') . '_' . $name . '.pdf';
         // 
-        Storage::disk('local')->put('public/tempo/'.$hashfile . '.html', $view->render());
+        Storage::disk('local')->put('public/tempo/' . $hashfile . '.html', $view->render());
         $this->pdfPortraits($hashfile, $filename);
         echo $filename;
     }
@@ -224,13 +213,12 @@ class StudentMemorizeCardController extends Controller
         $data['profile'] = $this->getInstituteProfile();
         //
         $view = View::make('academic::pages.students.memorize_card_form_pdf', $data);
-        $name = Str::lower(config('app.name')) .'_form_'. Str::of($this->subject)->snake();
+        $name = Str::lower(config('app.name')) . '_form_' . Str::of($this->subject)->snake();
         $hashfile = md5(date('Ymdhis') . '_' . $name);
         $filename = date('Ymdhis') . '_' . $name . '.pdf';
         // 
-        Storage::disk('local')->put('public/tempo/'.$hashfile . '.html', $view->render());
+        Storage::disk('local')->put('public/tempo/' . $hashfile . '.html', $view->render());
         $this->pdfPortrait($hashfile, $filename);
         echo $filename;
     }
-
 }
