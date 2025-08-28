@@ -445,22 +445,39 @@ class StudentMemorizeCardController extends Controller
 
             // Get student memorization data for the specified month
             $memorizations = DB::table('academic.memorize_cards')
+                ->select(
+                    'id',
+                    'memorize_date',
+                    'from_surah_id as from_surah',  // Aliasing to match view expectation
+                    'from_verse',
+                    'to_surah_id as to_surah',      // Aliasing to match view expectation
+                    'to_verse',
+                    'status'
+                )
                 ->where('student_id', $student_id)
                 ->whereBetween('memorize_date', [$startDate, $endDate])
                 ->orderBy('memorize_date')
                 ->get();
 
+            // Pastikan semester tidak null
+            if (!$semester) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Semester aktif tidak ditemukan untuk departemen tersebut'
+                ], 404);
+            }
+            
             // Set request data for the view
             $data['requests'] = (object) [
-                'department' => $student->department,
-                'schoolyear' => $student->school_year,
-                'grade' => $student->grade,
-                'semester' => $semester->semester,
-                'class' => $student->class,
-                'student_no' => $student->student_no,
-                'student_name' => $student->name,
-                'month_name' => $monthName,
-                'memorizations' => $memorizations
+                'department' => $student->department ?? '-',
+                'schoolyear' => $student->school_year ?? '-',
+                'grade' => $student->grade ?? '-',
+                'semester' => $semester->semester ?? '-',
+                'class' => $student->class ?? '-',
+                'student_no' => $student->student_no ?? '-',
+                'student_name' => $student->name ?? '-',
+                'month_name' => $monthName ?? '-',
+                'memorizations' => $memorizations ?? collect([])
             ];
 
             // Get institute profile

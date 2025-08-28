@@ -69,7 +69,7 @@
                         <td style="width:3%;">Bulan</td>
                         <td style="width: 1%;text-align:center;">:</td>
                         <td colspan="4">
-                            {{ $helpers->formatDate($requests->month_name, 'dateday') }}
+                            {{ $requests->month_name ?? '-' }}
                         </td>
                     </tr>
                 </tbody>
@@ -93,25 +93,31 @@
                 </thead>
                 <tbody>
                     @php $num = 1; @endphp
-                    @foreach ($requests->memorizations as $memorize)
-                        @php
-                            $from_surah = $helpers->getSurah($memorize->from_surah);
-                            $to_surah = $helpers->getSurah($memorize->to_surah);
-                        @endphp
+                    @if(isset($requests->memorizations) && count($requests->memorizations) > 0)
+                        @foreach ($requests->memorizations as $memorize)
+                            @php
+                                $from_surah = $helpers->getSurah($memorize->from_surah ?? null);
+                                $to_surah = $helpers->getSurah($memorize->to_surah ?? null);
+                            @endphp
+                            <tr>
+                                <td class="text-center">{{ $num++ }}</td>
+                                <td class="text-center">{{ isset($memorize->memorize_date) ? $helpers->formatDate($memorize->memorize_date, 'local') : '-' }}</td>
+                                <td class="text-center">
+                                    {{ $from_surah->id > 0 ? sprintf('%03d', $from_surah->id) . ' - ' . $from_surah->surah : '-' }}
+                                </td>
+                                <td class="text-center">{{ $memorize->from_verse ?? '-' }}</td>
+                                <td class="text-center">
+                                    {{ $to_surah->id > 0 ? sprintf('%03d', $to_surah->id) . ' - ' . $to_surah->surah : '-' }}
+                                </td>
+                                <td class="text-center">{{ $memorize->to_verse ?? '-' }}</td>
+                                <td class="text-center">{{ $memorize->status ?? '-' }}</td>
+                            </tr>
+                        @endforeach
+                    @else
                         <tr>
-                            <td class="text-center">{{ $num++ }}</td>
-                            <td class="text-center">{{ $helpers->formatDate($memorize->memorize_date, 'date') }}</td>
-                            <td class="text-center">
-                                {{ $from_surah->id > 0 ? sprintf('%03d', $from_surah->id) . ' - ' . $from_surah->surah : '-' }}
-                            </td>
-                            <td class="text-center">{{ $memorize->from_verse }}</td>
-                            <td class="text-center">
-                                {{ $to_surah->id > 0 ? sprintf('%03d', $to_surah->id) . ' - ' . $to_surah->surah : '-' }}
-                            </td>
-                            <td class="text-center">{{ $memorize->to_verse }}</td>
-                            <td class="text-center">{{ $memorize->status }}</td>
+                            <td class="text-center" colspan="7">Tidak ada data hafalan pada bulan ini</td>
                         </tr>
-                    @endforeach
+                    @endif
                 </tbody>
             </table>
         </div>
