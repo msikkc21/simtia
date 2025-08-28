@@ -25,11 +25,12 @@
         </div>
         <div class="col-4 p-0 text-right">
             <a id="recapMemorizeCard" data-options="iconCls:'ms-Icon ms-Icon--PDF'" class="easyui-linkbutton action-btn"
-                style="width: 180px; height: 30px;" onclick="recapMonth()">
-                Cetak Rekap 1 Bulan
-            </a>
-            <a class="easyui-linkbutton" data-options="iconCls:'ms-Icon ms-Icon--PDF'"
-                onclick="printMemorizeCardForm('pdf')">Cetak Form Kartu Setoran</a>
+                href="javascript:void(0)" onclick="recapMonth()" title="Cetak Rekap 1 Bulan">Rekap Bulanan</a>
+            <a id="studentDataMemorizeCard" data-options="iconCls:'ms-Icon ms-Icon--PDF'"
+                class="easyui-linkbutton action-btn" href="javascript:void(0)" onclick="studentDataPrint()"
+                title="Cetak Data Santri">Data Santri</a>
+            <a class="easyui-linkbutton" data-options="iconCls:'ms-Icon ms-Icon--PDF'" href="javascript:void(0)"
+                onclick="printMemorizeCard()" title="Cetak Kartu Setoran">Kartu Setoran</a>
         </div>
     </div>
 </div>
@@ -129,14 +130,12 @@
                                 <input class="easyui-textbox" id="MemorizeCardGrade" style="width:138px;height:22px;"
                                     data-options="label:'Tingkat:',labelWidth:'75px',readonly:true" />
                                 <span class="mr-2"></span>
-                                <input class="easyui-textbox" id="MemorizeCardSemester"
-                                    style="width:190px;height:22px;"
+                                <input class="easyui-textbox" id="MemorizeCardSemester" style="width:190px;height:22px;"
                                     data-options="label:'Semester:',labelWidth:'75px',readonly:true" />
                             </div>
                             <div class="mb-1">
                                 <select name="class_id" id="MemorizeCardClass" class="easyui-combogrid"
-                                    style="width:300px;height:22px;"
-                                    data-options="
+                                    style="width:300px;height:22px;" data-options="
                                     label:'<b>*</b>Kelas:',
                                     labelWidth:'125px',
                                     panelWidth: 470,
@@ -153,8 +152,7 @@
                                 </select>
                                 <span class="mr-2"></span>
                                 <select name="employee_id" id="MemorizeCardEmployeeId" class="easyui-combogrid"
-                                    style="width:375px;height:22px;"
-                                    data-options="
+                                    style="width:375px;height:22px;" data-options="
                                     label:'<b>*</b>Guru:',
                                     labelWidth:'100px',
                                     panelWidth: 500,
@@ -193,8 +191,7 @@
                                                 NIS</th>
                                             <th data-options="field:'name',width:180,resizeable:true,align:'left'">Nama
                                             </th>
-                                            <th
-                                                data-options="field:'from_surah',width:220,resizeable:true,
+                                            <th data-options="field:'from_surah',width:220,resizeable:true,
                                                 formatter:function(value,row){
                                                     return getSurahName(value)
                                                 },
@@ -211,8 +208,7 @@
                                             <th
                                                 data-options="field:'from_verse',width:70,resizeable:true,align:'center',editor:'numberbox'">
                                                 Dari Ayat</th>
-                                            <th
-                                                data-options="field:'to_surah',width:220,resizeable:true,
+                                            <th data-options="field:'to_surah',width:220,resizeable:true,
                                                 formatter:function(value,row){
                                                     return getSurahName(value)
                                                 },
@@ -229,8 +225,7 @@
                                             <th
                                                 data-options="field:'to_verse',width:90,resizeable:true,align:'center',editor:'numberbox'">
                                                 Sampai Ayat</th>
-                                            <th
-                                                data-options="field:'status',width:115,resizeable:true,
+                                            <th data-options="field:'status',width:115,resizeable:true,
                                                 editor: {
                                                     type: 'combobox',
                                                     options: {
@@ -263,21 +258,21 @@
     var dlgRecapMonthly;
     var surahs = [
         @foreach ($surahs as $surah)
-            {
+                {
                 id: {{ $surah->id }},
                 name: "{{ $surah->surah }}"
             },
         @endforeach
     ]
     var statusMemorize = [{
-            id: 'SANGAT BAIK'
-        },
-        {
-            id: 'BAIK'
-        },
-        {
-            id: 'KURANG BAIK'
-        }
+        id: 'SANGAT BAIK'
+    },
+    {
+        id: 'BAIK'
+    },
+    {
+        id: 'KURANG BAIK'
+    }
     ]
 
     function getSurahName(value) {
@@ -287,17 +282,32 @@
             }
         }
     }
-    $(function() {
+    $(function () {
         // Inisialisasi dialog rekap bulanan
         $("#dlg-recap-monthly").dialog({
             closed: true,
             modal: true,
             iconCls: 'ms-Icon ms-Icon--PDF',
             buttons: '#dlg-buttons-recap',
-            onOpen: function() {
+            onOpen: function () {
                 // Pastikan textbox combogrid memiliki styling uppercase
-                setTimeout(function() {
+                setTimeout(function () {
                     $("#class-select").combogrid('textbox').css('text-transform',
+                        'uppercase');
+                }, 200);
+            }
+        });
+
+        // Inisialisasi dialog cetak data santri
+        $("#dlg-student-data").dialog({
+            closed: true,
+            modal: true,
+            iconCls: 'ms-Icon ms-Icon--PDF',
+            buttons: '#dlg-buttons-student-data',
+            onOpen: function () {
+                // Pastikan textbox combogrid memiliki styling uppercase
+                setTimeout(function () {
+                    $("#student-select").combogrid('textbox').css('text-transform',
                         'uppercase');
                 }, 200);
             }
@@ -314,46 +324,46 @@
             fitColumns: true,
             editable: false, // Agar nilai tidak bisa diedit manual
             prompt: 'Pilih Kelas',
-            formatter: function(row) {
+            formatter: function (row) {
                 // Pastikan kelas selalu dalam format uppercase
                 return row.class.toUpperCase();
             },
             columns: [
                 [{
-                        field: 'department_id',
-                        title: 'Dept ID',
-                        hidden: true
-                    },
-                    {
-                        field: 'class',
-                        title: 'Kelas',
-                        width: 150,
-                        formatter: function(value) {
-                            // Format kelas di datagrid juga dengan huruf besar
-                            return value.toUpperCase();
-                        }
-                    },
-                    {
-                        field: 'grade',
-                        title: 'Tingkat',
-                        width: 80,
-                        align: 'center'
-                    },
-                    {
-                        field: 'school_year',
-                        title: 'Thn. Ajaran',
-                        width: 100,
-                        align: 'center'
+                    field: 'department_id',
+                    title: 'Dept ID',
+                    hidden: true
+                },
+                {
+                    field: 'class',
+                    title: 'Kelas',
+                    width: 150,
+                    formatter: function (value) {
+                        // Format kelas di datagrid juga dengan huruf besar
+                        return value.toUpperCase();
                     }
+                },
+                {
+                    field: 'grade',
+                    title: 'Tingkat',
+                    width: 80,
+                    align: 'center'
+                },
+                {
+                    field: 'school_year',
+                    title: 'Thn. Ajaran',
+                    width: 100,
+                    align: 'center'
+                }
                 ]
             ],
-            onLoadSuccess: function() {
+            onLoadSuccess: function () {
                 // Pastikan uppercase untuk semua data setelah dimuat
-                $(this).combogrid('grid').datagrid('getRows').forEach(function(row) {
+                $(this).combogrid('grid').datagrid('getRows').forEach(function (row) {
                     row.class = row.class.toUpperCase();
                 });
             },
-            onSelect: function(index, row) {
+            onSelect: function (index, row) {
                 // Set nilai ID untuk disimpan
                 $(this).combogrid('setValue', row.id);
 
@@ -370,7 +380,7 @@
                 // Tambahkan class CSS untuk memastikan teks selalu uppercase
                 $(this).combogrid('textbox').css('text-transform', 'uppercase');
             },
-            onShowPanel: function() {
+            onShowPanel: function () {
                 $(this).combogrid('grid').datagrid('reload');
             }
         });
@@ -381,7 +391,7 @@
             queryParams: {
                 _token: "{{ csrf_token() }}"
             },
-            onDblClickRow: function(index, row) {
+            onDblClickRow: function (index, row) {
                 if (sessionStorage.formKartu_Setoran == "active") {
                     $.messager.alert('Peringatan',
                         'Form sedang aktif, silahkan batalkan terlebih dahulu', 'error')
@@ -391,7 +401,7 @@
                     idMemorizeCard.value = 1
                     $("#form-memorize-card-main").form("load",
                         "{{ url('academic/student/memorize-card/show') }}" + "/" + row
-                        .id_class + "/" + row.date)
+                            .id_class + "/" + row.date)
                     $("#page-memorize-card").waitMe("hide")
                 }
             }
@@ -408,7 +418,7 @@
             queryParams: {
                 _token: '{{ csrf_token() }}'
             },
-            onClickRow: function(index, row) {
+            onClickRow: function (index, row) {
                 titleMemorizeCard.innerText = row.class
                 $("#MemorizeCardDept").textbox('setValue', row.department)
                 $("#MemorizeCardGrade").textbox('setValue', row.grade)
@@ -434,7 +444,7 @@
             field: 'id'
         })
         $("#form-memorize-card-main").form({
-            onLoadSuccess: function(data) {
+            onLoadSuccess: function (data) {
                 $("#MemorizeCardDept").textbox('setValue', data.department)
                 $("#MemorizeCardGrade").textbox('setValue', data.grade)
                 $("#MemorizeCardSchoolYear").textbox('setValue', data.school_year)
@@ -493,15 +503,15 @@
 
     function deleteMemorizeCard() {
         $.messager.confirm("Konfirmasi", "Anda akan menghapus data Setoran Hafalan terpilih, tetap lanjutkan?",
-            function(r) {
+            function (r) {
                 if (r) {
                     var dg = $("#tb-memorize-card-form").datagrid('getData')
                     $.post("{{ url('academic/student/memorize-card/destroy') }}", {
                         _token: "{{ csrf_token() }}",
                         students: dg.rows
-                    }, "json").done(function(response) {
+                    }, "json").done(function (response) {
                         ajaxMemorizeCardResponse(response)
-                    }).fail(function(xhr) {
+                    }).fail(function (xhr) {
                         failResponse(xhr)
                     })
                 }
@@ -516,16 +526,16 @@
                 _token: '{{ csrf_token() }}',
                 students: dg.rows
             },
-            beforeSubmit: function(formData, jqForm, options) {
+            beforeSubmit: function (formData, jqForm, options) {
                 $("#page-memorize-card").waitMe({
                     effect: "facebook"
                 })
             },
-            success: function(response) {
+            success: function (response) {
                 ajaxMemorizeCardResponse(response)
                 $("#page-memorize-card").waitMe("hide")
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 failResponse(xhr)
                 $("#page-memorize-card").waitMe("hide")
             }
@@ -547,7 +557,7 @@
     }
 
     function clearMemorizeCard() {
-        $.messager.confirm("Konfirmasi", "Perubahan belum disimpan, tetap batalkan?", function(r) {
+        $.messager.confirm("Konfirmasi", "Perubahan belum disimpan, tetap batalkan?", function (r) {
             if (r) {
                 actionClearMemorizeCard()
             }
@@ -617,6 +627,21 @@
         }
     }
 
+    function studentDataPrint() {
+        // Reset combogrid santri terlebih dahulu sebelum menampilkan dialog
+        // untuk memastikan tidak ada nilai lama yang tertinggal
+        $("#student-select").combogrid('clear');
+        $("#student-select").combogrid('setText', '');
+        $("#student-select").combogrid('textbox').attr('placeholder', 'Pilih Santri');
+
+        // Buka dialog cetak data santri
+        $('#dlg-student-data').dialog('open');
+
+        // Set nilai default untuk bulan saat ini
+        var currentMonth = new Date().getMonth() + 1; // JavaScript bulan dimulai dari 0
+        $("#student-month-select").combobox('setValue', currentMonth);
+    }
+
     function recapMonth() {
         // Reset combogrid kelas terlebih dahulu sebelum menampilkan dialog
         // untuk memastikan tidak ada nilai lama yang tertinggal
@@ -635,9 +660,9 @@
         $("#class-select").combogrid('textbox').css('text-transform', 'uppercase');
     }
 
-    $(function() {
+    $(function () {
         // Tambahkan CSS untuk memastikan teks selalu uppercase pada saat halaman dimuat
-        setTimeout(function() {
+        setTimeout(function () {
             $("#class-select").combogrid('textbox').css('text-transform', 'uppercase');
         }, 500);
 
@@ -653,11 +678,73 @@
         }
 
         // Tambahkan event handler untuk memastikan teks selalu uppercase
-        $(document).on('keyup', '.combo-text', function() {
+        $(document).on('keyup', '.combo-text', function () {
             $(this).val($(this).val().toUpperCase());
         });
 
-        $('#btn-print-recap').click(function() {
+        // Inisialisasi combogrid santri
+        $("#student-select").combogrid({
+            panelWidth: 500,
+            idField: 'id',
+            textField: 'name',
+            url: '{{ url('academic/student/memorize-card/students') }}',
+            method: 'get',
+            mode: 'remote',
+            fitColumns: true,
+            editable: false,
+            prompt: 'Pilih Santri',
+            formatter: function (row) {
+                return row.name.toUpperCase();
+            },
+            columns: [
+                [{
+                    field: 'id',
+                    title: 'ID',
+                    hidden: true
+                },
+                {
+                    field: 'student_no',
+                    title: 'NIS',
+                    width: 100,
+                    align: 'center'
+                },
+                {
+                    field: 'name',
+                    title: 'Nama',
+                    width: 250,
+                    formatter: function (value) {
+                        return value.toUpperCase();
+                    }
+                },
+                {
+                    field: 'class',
+                    title: 'Kelas',
+                    width: 120,
+                    formatter: function (value) {
+                        return value.toUpperCase();
+                    }
+                }
+                ]
+            ],
+            onLoadSuccess: function () {
+                $(this).combogrid('grid').datagrid('getRows').forEach(function (row) {
+                    row.name = row.name.toUpperCase();
+                });
+            },
+            onSelect: function (index, row) {
+                $(this).combogrid('setValue', row.id);
+                var displayText = row.name.toUpperCase();
+                $(this).combogrid('setText', displayText);
+                $(this).combogrid('textbox').val(displayText);
+                $(this).combogrid('hidePanel');
+                $(this).combogrid('textbox').css('text-transform', 'uppercase');
+            },
+            onShowPanel: function () {
+                $(this).combogrid('grid').datagrid('reload');
+            }
+        });
+
+        $('#btn-print-recap').click(function () {
             var month = $('#month-select').combobox('getValue');
             var classId = $('#class-select').combogrid('getValue');
             var className = $('#class-select').combogrid('getText');
@@ -693,7 +780,7 @@
                     class: classId
                 },
                 dataType: "json",
-                success: function(response) {
+                success: function (response) {
                     $("#page-memorize-card").waitMe("hide");
                     if (response.success) {
                         // Close dialog
@@ -704,7 +791,7 @@
 
                         // Open file in new tab/window (either PDF or HTML fallback)
                         var fileUrl = "{{ url('storage/downloads') }}/" + response
-                        .filename;
+                            .filename;
                         window.open(fileUrl, '_blank');
 
                         // Tampilkan pesan jika menggunakan mode HTML
@@ -722,7 +809,60 @@
                         $.messager.alert('Error', response.message, 'error');
                     }
                 },
-                error: function(xhr) {
+                error: function (xhr) {
+                    $("#page-memorize-card").waitMe("hide");
+                    failResponse(xhr);
+                }
+            });
+        });
+
+        // Button handler untuk cetak data santri
+        $('#btn-print-student-data').click(function () {
+            var month = $('#student-month-select').combobox('getValue');
+            var studentId = $('#student-select').combogrid('getValue');
+            var studentName = $('#student-select').combogrid('getText');
+
+            // Validasi input
+            if (!month || !studentId) {
+                $.messager.alert('Peringatan', 'Silakan pilih bulan dan santri terlebih dahulu',
+                    'warning');
+                return;
+            }
+
+            // Show loading indicator
+            $("#page-memorize-card").waitMe({
+                effect: "facebook"
+            });
+
+            // Send request to server
+            $.ajax({
+                url: "{{ url('academic/student/memorize-card/student-data/pdf') }}",
+                method: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    month: month,
+                    student: studentId
+                },
+                dataType: "json",
+                success: function (response) {
+                    $("#page-memorize-card").waitMe("hide");
+                    if (response.success) {
+                        // Close dialog
+                        $('#dlg-student-data').dialog('close');
+
+                        // Open file in new tab/window
+                        var fileUrl = "{{ url('storage/downloads') }}/" + response.filename;
+                        window.open(fileUrl, '_blank');
+
+                        Toast.fire({
+                            icon: "success",
+                            title: response.message
+                        });
+                    } else {
+                        $.messager.alert('Error', response.message, 'error');
+                    }
+                },
+                error: function (xhr) {
                     $("#page-memorize-card").waitMe("hide");
                     failResponse(xhr);
                 }
@@ -769,4 +909,43 @@
         data-options="iconCls:'ms-Icon ms-Icon--PDF'" style="width:120px">Cetak</a>
     <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'ms-Icon ms-Icon--Cancel'"
         onclick="javascript:$('#dlg-recap-monthly').dialog('close')" style="width:120px">Batal</a>
+</div>
+
+<!-- Dialog Cetak Data Santri -->
+<div id="dlg-student-data" class="easyui-dialog" title="Cetak Data Santri" style="width:400px;height:250px;padding:10px"
+    data-options="closed:true,modal:true,iconCls:'ms-Icon ms-Icon--PDF',buttons:'#dlg-buttons-student-data'">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-12">
+                <select id="student-select" class="easyui-combogrid" style="width:380px;height:22px;"
+                    data-options="label:'<b>*</b>Pilih Santri:',labelWidth:120,labelPosition:'before',editable:false,prompt:'Pilih Santri'">
+                </select>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-12">
+                <select id="student-month-select" class="easyui-combobox" style="width:380px;height:22px;"
+                    data-options="label:'<b>*</b>Pilih Bulan:',labelWidth:120,labelPosition:'before',panelHeight:240">
+                    <option value="1">Januari</option>
+                    <option value="2">Februari</option>
+                    <option value="3">Maret</option>
+                    <option value="4">April</option>
+                    <option value="5">Mei</option>
+                    <option value="6">Juni</option>
+                    <option value="7">Juli</option>
+                    <option value="8">Agustus</option>
+                    <option value="9">September</option>
+                    <option value="10">Oktober</option>
+                    <option value="11">November</option>
+                    <option value="12">Desember</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="dlg-buttons-student-data" style="text-align:center;padding:5px 0">
+    <a href="javascript:void(0)" id="btn-print-student-data" class="easyui-linkbutton"
+        data-options="iconCls:'ms-Icon ms-Icon--PDF'" style="width:120px">Cetak</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'ms-Icon ms-Icon--Cancel'"
+        onclick="javascript:$('#dlg-student-data').dialog('close')" style="width:120px">Batal</a>
 </div>

@@ -316,7 +316,9 @@ Route::group(['middleware' => ['auth']], function () {
                 Route::post('/print', 'StudentMemorizeCardController@print');
                 Route::post('/print/form', 'StudentMemorizeCardController@printForm');
                 Route::post('/rekap-bulanan/pdf', 'StudentMemorizeCardController@printMonthlyRecap')->middleware('permission:akademik-kartu_setoran_santri-index');
+                Route::post('/student-data/pdf', 'StudentMemorizeCardController@printStudentData')->middleware('permission:akademik-kartu_setoran_santri-index');
                 Route::get('/classes', 'StudentMemorizeCardController@getClasses');
+                Route::get('/students', 'StudentMemorizeCardController@getStudents');
             });
         });
         // presence

@@ -154,20 +154,20 @@ trait HelperTrait
     	$foundation = Institute::whereHas('getDepartment', function($qry) {
                             $qry->where('is_all',0);    
                         })->first();
-        if (Storage::disk('local')->exists('/public/uploads/'.$foundation->logo) && $foundation->logo <> null)
-        {
-            $logo = asset('storage/uploads') .'/'. $foundation->logo;
-        } else {
-            $logo = asset('img/logo-yayasan.png');
-        }
+        // if (Storage::disk('local')->exists('/public/uploads/'.$foundation->logo) && $foundation->logo <> null)
+        // {
+            // $logo = asset('storage/uploads') .'/'. $foundation->logo;
+        // } else {
+        //     $logo = asset('img/logo-yayasan.png');
+        // }
         $profiles = array(
             'name' => "PPPA DAARUL QUR'AN",
-            'logo' => $logo,
-            'address' => $foundation->address,
-            'phone' => $foundation->phone,
+            'logo' => asset('img/logo-yayasan.png'),
+            'address' => $foundation->address ?? "",
+            'phone' => $foundation->phone ?? "",
             'fax' => !empty($foundation->fax) ? $foundation->fax : '-',
-            'web' => $foundation->website,
-            'email' => $foundation->email
+            'web' => $foundation->website ?? "",
+            'email' => $foundation->email ?? ""
         );
         return $profiles;
     }

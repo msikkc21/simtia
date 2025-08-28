@@ -383,4 +383,111 @@ class StudentMemorizeCardController extends Controller
             ], 500);
         }
     }
+    
+    /**
+     * Get all students data for combogrid
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getStudents()
+    {
+        $students = DB::table('academic.students AS s')
+            ->join('academic.student_class_histories AS sch', 's.id', '=', 'sch.student_id')
+            ->join('academic.classes AS c', 'sch.class_id', '=', 'c.id')
+            ->where('sch.active', 1) // Berdasarkan definisi tabel, menggunakan kolom 'active' bukan 'is_active'
+            ->where('s.is_active', 1)
+            ->select('s.id', 's.student_no', 's.name', 'c.class')
+            ->orderBy('s.student_no')
+            ->get();
+            
+        return response()->json($students);
+    }
+    
+    /**
+     * Generate student memorization data
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function printStudentData(Request $request)
+    {
+        try {
+            // Parse request data
+            $month = (int) $request->month;
+            $student_id = (int) $request->student;
+            $year = Carbon::now()->year;
+
+            // Get start and end date of the specified month
+            $startDate = Carbon::createFromDate($year, $month, 1)->format('Y-m-d');
+            $endDate = Carbon::createFromDate($year, $month, 1)->endOfMonth()->format('Y-m-d');
+            $monthName = Carbon::createFromDate($year, $month, 1)->locale('id')->monthName . ' ' . $year;
+
+            // Get student information
+            $student = DB::table('academic.students AS s')
+                ->join('academic.student_class_histories AS sch', 's.id', '=', 'sch.student_id')
+                ->join('academic.classes AS c', 'sch.class_id', '=', 'c.id')
+                ->join('academic.grades AS g', 'c.grade_id', '=', 'g.id')
+                ->join('academic.schoolyears AS sy', 'c.schoolyear_id', '=', 'sy.id')
+                ->join('public.departments AS d', 'g.department_id', '=', 'd.id')
+                ->where('s.id', $student_id)
+                ->where('sch.active', 1) // Menggunakan kolom active, bukan is_active
+                ->where('s.is_active', 1)
+                ->select('s.id', 's.student_no', 's.name', 'c.class', 'g.grade', 'sy.school_year', 'g.department_id', 'd.name AS department')
+                ->first();
+
+            if (!$student) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Santri tidak ditemukan'
+                ], 404);
+            }
+
+            // Get semester
+            $semester = $this->getSemesterByDept($student->department_id);
+
+            // Get student memorization data for the specified month
+            $memorizations = DB::table('academic.memorize_cards')
+                ->where('student_id', $student_id)
+                ->whereBetween('memorize_date', [$startDate, $endDate])
+                ->orderBy('memorize_date')
+                ->get();
+
+            // Set request data for the view
+            $data['requests'] = (object) [
+                'department' => $student->department,
+                'schoolyear' => $student->school_year,
+                'grade' => $student->grade,
+                'semester' => $semester->semester,
+                'class' => $student->class,
+                'student_no' => $student->student_no,
+                'student_name' => $student->name,
+                'month_name' => $monthName,
+                'memorizations' => $memorizations
+            ];
+
+            // Get institute profile
+            $data['profile'] = $this->getInstituteProfile();
+
+            // Generate PDF
+            $view = View::make('academic::pages.students.memorize_card_student_pdf', $data);
+            $name = Str::lower(config('app.name')) . '_data_hafalan_santri_' . $student->student_no . '_' . $month . '_' . $year;
+            $hashfile = md5(date('Ymdhis') . '_' . $name);
+            $filename = date('Ymdhis') . '_' . $name . '.pdf';
+
+            // Save HTML to storage
+            Storage::disk('local')->put('public/tempo/' . $hashfile . '.html', $view->render());
+
+            // Generate PDF
+            $this->pdfPortrait($hashfile, $filename);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data berhasil dicetak',
+                'filename' => $filename
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
 }
