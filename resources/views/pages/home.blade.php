@@ -62,11 +62,13 @@
                                 {{-- <div class="menu-sep"></div> --}}
                                 {{-- <div onclick="openTabMenu('PSB Konfigurasi','academic/admission/config','init')">
                                     Konfigurasi</div> --}}
-                                {{-- <div onclick="openTabMenu('Tambahan Kolom','academic/admission/column','init')">Tambahan
+                                {{-- <div onclick="openTabMenu('Tambahan Kolom','academic/admission/column','init')">
+                                    Tambahan
                                     Kolom Data Santri</div> --}}
                             </div>
                         </div>
-                        {{-- <div onclick="openTabMenu('Pembagian Kamar','academic/room/placement','init')">Pembagian Kamar
+                        {{-- <div onclick="openTabMenu('Pembagian Kamar','academic/room/placement','init')">Pembagian
+                            Kamar
                             Santri</div>
                         <div>
                             <span>Pelajaran</span>
@@ -105,7 +107,8 @@
                                     Rekapitulasi Jadwal Guru</div>
                             </div>
                         </div> --}}
-                        {{-- <div onclick="openTabMenu('Kalender Akademik','academic/calendar','init')">Kalender Akademik
+                        {{-- <div onclick="openTabMenu('Kalender Akademik','academic/calendar','init')">Kalender
+                            Akademik
                         </div> --}}
                         <div class="menu-sep"></div>
                         <div onclick="openTabMenu('Pendataan Santri','academic/student','init')">Data Santri</div>
@@ -152,7 +155,8 @@
                                     Kelulusan - Alumni</div>
                             </div>
                         </div> --}}
-                        {{-- <div onclick="openTabMenu('Mutasi Santri','academic/student/mutation','init')">Mutasi Santri
+                        {{-- <div onclick="openTabMenu('Mutasi Santri','academic/student/mutation','init')">Mutasi
+                            Santri
                         </div> --}}
                     </div>
                     <div id="mm4" style="width:250px;">
@@ -227,28 +231,38 @@
                         <div class="col mt-2 mb-2"><span class="title-shortcut">Akademik</span></div>
                     </div>
                     <div class="row align-items-center" style="padding: 5px 0;">
-                        <div class="col-md-auto"><a
+                        {{-- <div class="col-md-auto"><a
                                 onclick="openTabMenu('Presensi Harian','academic/presence/daily','init')"
                                 style="width:120px;padding:6px;" class="easyui-linkbutton"
                                 data-options="iconCls:'icon-document32',size:'large',iconAlign:'top'">Presensi<br />Harian</a>
+                        </div> --}}
+                        {{-- <div class="col-md-auto"><i class="gg-arrow-long-right" style="visibility:hidden"></i>
                         </div>
-                        <div class="col-md-auto"><i class="gg-arrow-long-right" style="visibility:hidden"></i></div>
                         <div class="col-md-auto"><a
                                 onclick="openTabMenu('Presensi Pelajaran','academic/presence/lesson','init')"
                                 style="width:120px;padding:6px;" class="easyui-linkbutton"
                                 data-options="iconCls:'icon-document32',size:'large',iconAlign:'top'">Presensi<br />Pelajaran</a>
-                        </div>
-                        <div class="col-md-auto"><i class="gg-arrow-long-right" style="visibility:hidden"></i></div>
+                        </div> --}}
+                        {{-- <div class="col-md-auto"><i class="gg-arrow-long-right" style="visibility:hidden"></i>
+                        </div> --}}
                         <div class="col-md-auto"><a onclick="openTabMenu('Pendataan Santri','academic/student','init')"
                                 style="width:120px;padding:6px;" class="easyui-linkbutton"
                                 data-options="iconCls:'icon-users32',size:'large',iconAlign:'top'">Data<br />Santri</a>
                         </div>
-                        <div class="col-md-auto"><i class="gg-arrow-long-right" style="visibility:hidden"></i></div>
-                        <div class="col-md-auto"><a onclick="openTabMenu('Guru','academic/teacher','init')"
+                        <div class="col-md-auto"><i class="gg-arrow-long-right" style="visibility:hidden"></i>
+                        </div>
+                        <div class="col-md-auto"><a onclick="openTabMenu('Kartu Setoran','academic/student/memorize-card','init')"
+                                style="width:120px;padding:6px;" class="easyui-linkbutton"
+                                data-options="iconCls:'icon-document32',size:'large',iconAlign:'top'">Kartu<br />Setoran</a>
+                        </div>
+                        {{-- <div class="col-md-auto"><i class="gg-arrow-long-right" style="visibility:hidden"></i>
+                        </div> --}}
+                        {{-- <div class="col-md-auto"><a onclick="openTabMenu('Guru','academic/teacher','init')"
                                 style="width:120px;padding:6px;" class="easyui-linkbutton"
                                 data-options="iconCls:'icon-sales32',size:'large',iconAlign:'top'">Data<br />Guru</a>
+                        </div> --}}
+                        {{-- <div class="col-md-auto"><i class="gg-arrow-long-right" style="visibility:hidden"></i>
                         </div>
-                        <div class="col-md-auto"><i class="gg-arrow-long-right" style="visibility:hidden"></i></div>
                         <div class="col-md-auto"><a onclick="openTabMenu('Data Pelajaran','academic/lesson','init')"
                                 style="width:120px;padding:6px;" class="easyui-linkbutton"
                                 data-options="iconCls:'icon-document32',size:'large',iconAlign:'top'">Data<br />Pelajaran</a>
@@ -258,7 +272,7 @@
                                 onclick="openTabMenu('Kalender Akademik','academic/calendar','init')"
                                 style="width:120px;padding:6px;" class="easyui-linkbutton"
                                 data-options="iconCls:'icon-calendar32',size:'large',iconAlign:'top'">Kalender<br />Akademik</a>
-                        </div>
+                        </div> --}}
                     </div>
                     <div class="row d-none">
                         <div class="col mt-2 mb-2"><span class="title-shortcut">Kas dan Keuangan</span></div>
