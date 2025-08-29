@@ -21,20 +21,19 @@ use Exception;
 define("MIN_DATES_DIFF", 25569);
 define("SEC_IN_DAY", 86400);
 
-trait HelperTrait 
+trait HelperTrait
 {
 
     public function getPeriodName($param)
     {
         $value = sprintf('%06d', $param);
-        return $this->getMonthName(substr($value, 0,2)) .' / '. substr($value, 2,4);
+        return $this->getMonthName(substr($value, 0, 2)) . ' / ' . substr($value, 2, 4);
     }
 
     public function getConfigs($slug, $key = '#')
     {
         $query = DB::table('public.configs')->where('slug', $slug);
-        if ($key != '#')
-        {
+        if ($key != '#') {
             $query = $query->where('key', $key);
         }
         return $query->first();
@@ -42,8 +41,7 @@ trait HelperTrait
 
     public function getSurah($surah_id)
     {
-        if (!empty($surah_id))
-        {
+        if (!empty($surah_id)) {
             return DB::table('public.quran_surahs')->where('id', $surah_id)->first();
         } else {
             $surahs = new \stdClass;
@@ -62,7 +60,7 @@ trait HelperTrait
     public function getActiveBookYear()
     {
         $bookyear = new BookYear();
-        return BookYear::where('is_active',1)->firstOr( function() use ($bookyear) {
+        return BookYear::where('is_active', 1)->firstOr(function () use ($bookyear) {
             $bookyear->id = 0;
             $bookyear->book_year = '1970';
             $bookyear->start_date = '1970-01-01';
@@ -79,15 +77,12 @@ trait HelperTrait
 
     public function checkUpdate()
     {
-        if ($this->check_internet(config('app.updater_url'), 443))
-        {
+        if ($this->check_internet(config('app.updater_url'), 443)) {
             $user = User::find(auth()->user()->id);
-            if ($user->getRoleNames()[0] == 'Administrator')
-            {
+            if ($user->getRoleNames()[0] == 'Administrator') {
                 $updater = new UpdaterController();
                 $newVersion = $updater->check();
-                if (!empty($newVersion))
-                {
+                if (!empty($newVersion)) {
                     $request = new Request();
                     $request->merge([
                         'user_id' => auth()->user()->id,
@@ -97,10 +92,8 @@ trait HelperTrait
                     ]);
                     $notification_search = Notification::where('msg_type', 'update')->where('user_id', auth()->user()->id);
                     $notification = new NotificationEloquent();
-                    if (!empty($notification_search->items))
-                    {
-                        if ($newVersion != json_decode($notification_search->items)[0])
-                        {
+                    if (!empty($notification_search->items)) {
+                        if ($newVersion != json_decode($notification_search->items)[0]) {
                             $notification->create($request);
                         }
                     } else {
@@ -114,55 +107,55 @@ trait HelperTrait
     private function check_internet($domain, $port)
     {
         $hostnames = explode('//', $domain);
-        $file = @fsockopen ($hostnames[1], $port);
+        $file = @fsockopen($hostnames[1], $port);
         return ($file);
     }
 
     public function PHPExcelCommonStyle()
     {
         return [
-            'bold' => [ 'font' => [ 'bold' => true ] ],
-            'normal' => [ 'font' => [ 'bold' => false ] ],
-            'title' => [ 'font' => [ 'bold' => true, 'size' => 13 ] ],
-            'subTitle' => [ 'font' => [ 'bold' => true, 'size' => 12 ] ],
-            'header' => [ 'font' => [ 'bold' => true, 'size' => 12 ], 'alignment' => [ 'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER, 'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER, ], 'borders' => [ 'allBorders' => [ 'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN, ] ], 'fill' => [ 'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => [ 'argb' => 'CCFFFF' ] ] ],
-            'bodyLeft' => [ 'font' => [ 'size' => 11 ], 'alignment' => [ 'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT, 'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER, ], 'borders' => [ 'allBorders' => [ 'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN, ] ] ],
-            'bodyRight' => [ 'font' => [ 'size' => 11 ], 'alignment' => [ 'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT, 'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER, ], 'borders' => [ 'allBorders' => [ 'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN, ] ] ],
-            'bodyCenter' => [ 'font' => [ 'size' => 11 ], 'alignment' => [ 'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER, 'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER, ], 'borders' => [ 'allBorders' => [ 'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN, ] ] ],
-            'bodyCenterBig' => [ 'font' => [ 'bold' => true, 'size' => 16 ], 'alignment' => [ 'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER, 'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER, ], 'borders' => [ 'allBorders' => [ 'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN, ] ] ],
-            'contentRight' => [ 'font' => [ 'size' => 11 ], 'alignment' => [ 'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT, 'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER, ] ],
+            'bold' => ['font' => ['bold' => true]],
+            'normal' => ['font' => ['bold' => false]],
+            'title' => ['font' => ['bold' => true, 'size' => 13]],
+            'subTitle' => ['font' => ['bold' => true, 'size' => 12]],
+            'header' => ['font' => ['bold' => true, 'size' => 12], 'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER, 'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,], 'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,]], 'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['argb' => 'CCFFFF']]],
+            'bodyLeft' => ['font' => ['size' => 11], 'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT, 'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,], 'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,]]],
+            'bodyRight' => ['font' => ['size' => 11], 'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT, 'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,], 'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,]]],
+            'bodyCenter' => ['font' => ['size' => 11], 'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER, 'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,], 'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,]]],
+            'bodyCenterBig' => ['font' => ['bold' => true, 'size' => 16], 'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER, 'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,], 'borders' => ['allBorders' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,]]],
+            'contentRight' => ['font' => ['size' => 11], 'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT, 'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,]],
         ];
     }
 
     public function getEmployeeName($employee_id)
     {
-        $employee    = Employee::where('id',$employee_id)->orWhere('employee_id',$employee_id)->first();
+        $employee    = Employee::where('id', $employee_id)->orWhere('employee_id', $employee_id)->first();
         $title_first = !empty($employee->title_first) ? $employee->title_first : '';
         $name        = !empty($employee->name) ? $employee->name : '';
         $title_end   = !empty($employee->title_end) ? $employee->title_end : '';
-        return $title_first .' '. $name .' '. $title_end;
+        return $title_first . ' ' . $name . ' ' . $title_end;
     }
 
     public function getEmployeeNo($employee_id)
     {
-        $employee = Employee::where('id',$employee_id)->orWhere('employee_id',$employee_id)->first();
+        $employee = Employee::where('id', $employee_id)->orWhere('employee_id', $employee_id)->first();
         return $employee->employee_id;
     }
 
-	public function getInstituteProfile()
+    public function getInstituteProfile()
     {
-    	$foundation = Institute::whereHas('getDepartment', function($qry) {
-                            $qry->where('is_all',0);    
-                        })->first();
+        $foundation = Institute::whereHas('getDepartment', function ($qry) {
+            $qry->where('is_all', 0);
+        })->first();
         // if (Storage::disk('local')->exists('/public/uploads/'.$foundation->logo) && $foundation->logo <> null)
         // {
-            // $logo = asset('storage/uploads') .'/'. $foundation->logo;
+        // $logo = asset('storage/uploads') .'/'. $foundation->logo;
         // } else {
         //     $logo = asset('img/logo-yayasan.png');
         // }
         $profiles = array(
             'name' => "PPPA DAARUL QUR'AN",
-            'logo' => asset('img/logo-yayasan.png'),
+            'logo' => asset('img/logo-pppa.png'),
             'address' => $foundation->address ?? "",
             'phone' => $foundation->phone ?? "",
             'fax' => !empty($foundation->fax) ? $foundation->fax : '-',
@@ -174,48 +167,46 @@ trait HelperTrait
 
     public function getResponse($method, $message = "", $subject = "", $params = "")
     {
-    	switch ($method) 
-    	{
-    		case 'warning':
-    			return [ 'success' => false, 'message' => $message ];
-    			break;
-    		case 'login':
-    			return [ 'success' => true, 'message' => 'Berhasil masuk' ];
-    			break;
-    		case 'logout':
-    			return [ 'success' => true, 'message' => 'Berhasil keluar' ];
-    			break;
-    		case 'destroy':
-    			return [ 'success' => true, 'message' => $subject . ' berhasil dihapus', 'params' => $params ];
-    			break;
-            case 'info':
-                return [ 'success' => true, 'message' => $message ];
+        switch ($method) {
+            case 'warning':
+                return ['success' => false, 'message' => $message];
                 break;
-    		case 'error':
-    			switch ($message)
-    			{
+            case 'login':
+                return ['success' => true, 'message' => 'Berhasil masuk'];
+                break;
+            case 'logout':
+                return ['success' => true, 'message' => 'Berhasil keluar'];
+                break;
+            case 'destroy':
+                return ['success' => true, 'message' => $subject . ' berhasil dihapus', 'params' => $params];
+                break;
+            case 'info':
+                return ['success' => true, 'message' => $message];
+                break;
+            case 'error':
+                switch ($message) {
                     case Str::contains($message, 'Data missing'):
-                        return [ 'success' => false, 'message' => 'Isian tanggal tidak lengkap, silahkan cek kolom tanggal.' ];
+                        return ['success' => false, 'message' => 'Isian tanggal tidak lengkap, silahkan cek kolom tanggal.'];
                         break;
-    				case Str::contains($message, 'Unique violation'):
-		                return [ 'success' => false, 'message' => 'Input '.$subject.' sudah digunakan.' ];
-		                break;
-		            case Str::contains($message, 'Foreign key violation'):
-		                return [ 'success' => false, 'message' => $subject.' terpilih sudah digunakan pada data (transaksi) lain.' ];
-		                break;   
-		            case Str::contains($message, 'Raise exception'):
-		                $exception = Str::between($message, 'ERROR:', 'CONTEXT:');
-		                return [ 'success' => false, 'message' => $exception ];
-		                break;  
-		            default:
-		                return [ 'success' => false, 'message' => $message ];
-		                break;
-    			}
-    			break;
-    		default:
-    			return [ 'success' => true, 'message' => $subject . ' berhasil disimpan', 'params' => $params ];
-    			break;
-    	}
+                    case Str::contains($message, 'Unique violation'):
+                        return ['success' => false, 'message' => 'Input ' . $subject . ' sudah digunakan.'];
+                        break;
+                    case Str::contains($message, 'Foreign key violation'):
+                        return ['success' => false, 'message' => $subject . ' terpilih sudah digunakan pada data (transaksi) lain.'];
+                        break;
+                    case Str::contains($message, 'Raise exception'):
+                        $exception = Str::between($message, 'ERROR:', 'CONTEXT:');
+                        return ['success' => false, 'message' => $exception];
+                        break;
+                    default:
+                        return ['success' => false, 'message' => $message];
+                        break;
+                }
+                break;
+            default:
+                return ['success' => true, 'message' => $subject . ' berhasil disimpan', 'params' => $params];
+                break;
+        }
     }
 
     public function gridRequest(Request $request, $order = 'desc', $sort_col = '')
@@ -228,53 +219,51 @@ trait HelperTrait
         );
     }
 
-    public function removeFormat($value) 
+    public function removeFormat($value)
     {
         return str_replace(',', '', str_replace('Rp', '', $value));
     }
 
-    private function denominator($value) 
+    private function denominator($value)
     {
         $value = abs($value);
         $letter = array("", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas");
         $temp = "";
-        if ($value < 12) 
-        {
-            $temp = " ". $letter[$value];
-        } else if ($value <20) {
-            $temp = $this->denominator($value - 10). " belas";
+        if ($value < 12) {
+            $temp = " " . $letter[$value];
+        } else if ($value < 20) {
+            $temp = $this->denominator($value - 10) . " belas";
         } else if ($value < 100) {
-            $temp = $this->denominator($value/10)." puluh". $this->denominator($value % 10);
+            $temp = $this->denominator($value / 10) . " puluh" . $this->denominator($value % 10);
         } else if ($value < 200) {
             $temp = " seratus" . $this->denominator($value - 100);
         } else if ($value < 1000) {
-            $temp = $this->denominator($value/100) . " ratus" . $this->denominator($value % 100);
+            $temp = $this->denominator($value / 100) . " ratus" . $this->denominator($value % 100);
         } else if ($value < 2000) {
             $temp = " seribu" . $this->denominator($value - 1000);
         } else if ($value < 1000000) {
-            $temp = $this->denominator($value/1000) . " ribu" . $this->denominator($value % 1000);
+            $temp = $this->denominator($value / 1000) . " ribu" . $this->denominator($value % 1000);
         } else if ($value < 1000000000) {
-            $temp = $this->denominator($value/1000000) . " juta" . $this->denominator($value % 1000000);
+            $temp = $this->denominator($value / 1000000) . " juta" . $this->denominator($value % 1000000);
         } else if ($value < 1000000000000) {
-            $temp = $this->denominator($value/1000000000) . " milyar" . $this->denominator(fmod($value,1000000000));
+            $temp = $this->denominator($value / 1000000000) . " milyar" . $this->denominator(fmod($value, 1000000000));
         } else if ($value < 1000000000000000) {
-            $temp = $this->denominator($value/1000000000000) . " trilyun" . $this->denominator(fmod($value,1000000000000));
-        }     
+            $temp = $this->denominator($value / 1000000000000) . " trilyun" . $this->denominator(fmod($value, 1000000000000));
+        }
         return $temp;
     }
- 
-    public function counted($value) 
+
+    public function counted($value)
     {
-        if($value < 0) 
-        {
-            $result = "minus ". trim($this->denominator($value));
+        if ($value < 0) {
+            $result = "minus " . trim($this->denominator($value));
         } else {
             $result = trim($this->denominator($value));
-        }           
+        }
         return $result;
     }
 
-    public function filter_filename($filename) 
+    public function filter_filename($filename)
     {
         // sanitize filename
         $filename = preg_replace(
@@ -285,7 +274,9 @@ trait HelperTrait
             [#\[\]@!$&\'()+,;=]|     # URI reserved https://tools.ietf.org/html/rfc3986#section-2.2
             [{}^\~`]                 # URL unsafe characters https://www.ietf.org/rfc/rfc1738.txt
             ~x',
-            '-', $filename);
+            '-',
+            $filename
+        );
         // avoids ".", ".." or ".hiddenFiles"
         $filename = ltrim($filename, '.-');
         // optional beautification
@@ -297,7 +288,7 @@ trait HelperTrait
         return $filename;
     }
 
-    public function beautify_filename($filename) 
+    public function beautify_filename($filename)
     {
         // reduce consecutive characters
         $filename = preg_replace(array(
@@ -323,8 +314,7 @@ trait HelperTrait
 
     public function formatCode($param)
     {
-        if (Str::contains($param, '-'))
-        {
+        if (Str::contains($param, '-')) {
             $arr = explode('-', $param);
             return $arr[1];
         } else {
@@ -336,14 +326,13 @@ trait HelperTrait
     {
         $params = explode('/', $param);
         $values = explode('/', $value);
-        return (strtotime(Carbon::createFromFormat('d/m/Y',$param)) > strtotime(Carbon::createFromFormat('d/m/Y',$value)) || $params[2] !== $values[2]) ? false : true;
+        return (strtotime(Carbon::createFromFormat('d/m/Y', $param)) > strtotime(Carbon::createFromFormat('d/m/Y', $value)) || $params[2] !== $values[2]) ? false : true;
     }
 
     public function formatLabel($param)
     {
-        $string = preg_match('/\s/',$param);
-        if ($string > 0)
-        {
+        $string = preg_match('/\s/', $param);
+        if ($string > 0) {
             return str_replace(' ', "\n", $param);
         } else {
             return $param;
@@ -353,13 +342,12 @@ trait HelperTrait
     public function totalMinutes($time)
     {
         $time = explode(':', $time);
-        return ($time[0]*60) + ($time[1]);
+        return ($time[0] * 60) + ($time[1]);
     }
 
     public function formatDate($date, $format)
     {
-        switch ($format) 
-        {
+        switch ($format) {
             case 'local':
                 return Carbon::createFromFormat('Y-m-d', $date)->format('d/m/Y');
                 break;
@@ -394,28 +382,25 @@ trait HelperTrait
 
     public function formatCurrency($value, $currency)
     {
-        switch ($currency)
-        {
+        switch ($currency) {
             default:
-                return 'Rp'. number_format($value,2);
+                return 'Rp' . number_format($value, 2);
                 break;
         }
     }
 
     public function dateBefore($param)
     {
-        if (str_contains($param, '/'))
-        {
-            return date('Y-m-t', strtotime(date("Y-m-d", strtotime('-1 month',strtotime($this->formatDate($param,'sys'))))));
+        if (str_contains($param, '/')) {
+            return date('Y-m-t', strtotime(date("Y-m-d", strtotime('-1 month', strtotime($this->formatDate($param, 'sys'))))));
         } else {
-            return date('Y-m-t', strtotime(date("Y-m-d", strtotime('-1 month',strtotime($param)))));
+            return date('Y-m-t', strtotime(date("Y-m-d", strtotime('-1 month', strtotime($param)))));
         }
     }
 
     public function getDayName($value)
     {
-        switch ($value) 
-        {
+        switch ($value) {
             case 1:
                 return 'Senin';
                 break;
@@ -442,8 +427,7 @@ trait HelperTrait
 
     public function getMonthName($value)
     {
-        switch ($value) 
-        {
+        switch ($value) {
             case '01':
                 return 'Januari';
                 break;
